@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第三次回診問卷 | 公主營養師</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans TC',sans-serif;background:#F5F0E8;color:#3a3228;min-height:100vh}
+
+/* ── HEADER ── */
+.header{background:#4a5a2a;padding:20px;text-align:center}
+.header-logo{font-size:12px;color:#a8c870;letter-spacing:3px;margin-bottom:6px}
+.header-title{font-size:20px;font-weight:700;color:white}
+.header-sub{font-size:13px;color:#c8d8a0;margin-top:4px}
+
+/* ── PROGRESS ── */
+.progress-wrap{background:white;border-bottom:1px solid #e0d8c0;padding:12px 16px;position:sticky;top:0;z-index:100}
+.progress-steps{display:flex;justify-content:center;gap:4px;max-width:480px;margin:0 auto}
+.step{flex:1;text-align:center;font-size:10px;color:#b0a898}
+.step.active{color:#4a5a2a;font-weight:600}
+.step.done{color:#7a9a3a}
+.step-dot{width:22px;height:22px;border-radius:50%;background:#e0d8c0;display:flex;align-items:center;justify-content:center;margin:0 auto 4px;font-size:10px;color:#b0a898}
+.step.active .step-dot{background:#4a5a2a;color:white}
+.step.done .step-dot{background:#7a9a3a;color:white}
+.progress-bar{height:3px;background:#e0d8c0;border-radius:2px;max-width:480px;margin:8px auto 0}
+.progress-fill{height:3px;background:#4a5a2a;border-radius:2px;transition:width .4s}
+
+/* ── PAGES ── */
+.page{display:none;max-width:480px;margin:0 auto;padding:24px 20px 40px}
+.page.active{display:block}
+
+/* ── SECTION ── */
+.section-title{font-size:16px;font-weight:700;color:#4a5a2a;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.section-desc{font-size:13px;color:#7a6e5f;margin-bottom:20px;line-height:1.6}
+.field-group{margin-bottom:20px}
+.field-label{font-size:14px;font-weight:500;color:#3a3228;margin-bottom:8px;display:block}
+.field-label span{font-size:12px;color:#a09080;font-weight:400;margin-left:4px}
+.field-input{width:100%;padding:12px 14px;border:1.5px solid #d0c8b0;border-radius:10px;background:white;font-size:15px;color:#3a3228;outline:none;font-family:inherit;transition:border-color .2s}
+.field-input:focus{border-color:#4a5a2a}
+
+/* ── 說明框（評分標準） ── */
+.instruction-box{border:1.5px dashed #d0c8b0;border-radius:12px;padding:18px 16px;margin-bottom:20px;background:white;text-align:center}
+.instruction-quote{font-size:22px;color:#c8d8a0;margin-bottom:6px}
+.instruction-title{font-size:14px;font-weight:700;color:#3a3228;margin-bottom:10px}
+.instruction-list{font-size:12px;color:#7a6e5f;line-height:1.9;text-align:left;display:inline-block}
+
+/* ── SYMPTOM SCALE ── */
+.symptom-item{background:white;border-radius:12px;padding:14px;margin-bottom:10px;border:1.5px solid #e0d8c0}
+.symptom-name{font-size:14px;font-weight:500;color:#3a3228;margin-bottom:10px}
+.scale-opts{display:flex;gap:4px}
+.scale-opt{flex:1;text-align:center}
+.scale-opt input{display:none}
+.scale-opt label{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 2px;border-radius:8px;transition:all .15s}
+.scale-opt label .dot{width:28px;height:28px;border-radius:50%;border:1.5px solid #d0c8b0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#b0a898;transition:all .15s;text-align:center}
+.scale-opt label .lbl{font-size:9px;color:#b0a898;line-height:1.2;text-align:center}
+.scale-opt input:checked + label .dot{background:#4a5a2a;border-color:#4a5a2a;color:white}
+.scale-opt input:checked + label .lbl{color:#4a5a2a;font-weight:600}
+
+/* ── OPTION PILL ── */
+.option-pill{display:block;position:relative;padding:14px 16px 14px 44px;border:1.5px dashed #c8d8a0;border-radius:10px;background:white;font-size:14px;color:#3a3228;margin-bottom:10px;cursor:pointer;transition:all .15s}
+.option-pill input{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;accent-color:#4a5a2a;cursor:pointer}
+.option-pill.selected{border-style:solid;border-color:#4a5a2a;background:#f0f4e4}
+
+/* ── 女性限定提示 ── */
+.note-box{background:#f0f4e4;border:1.5px solid #c8d8a0;border-radius:12px;padding:20px;text-align:center;font-size:14px;color:#5a6a3a;line-height:1.7}
+
+/* ── NAV BUTTONS ── */
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:28px;gap:12px}
+.btn-back{padding:12px 24px;border-radius:99px;border:1.5px solid #d0c8b0;background:white;color:#5a5040;font-size:14px;cursor:pointer;font-family:inherit}
+.btn-next{flex:1;padding:14px;border-radius:99px;border:none;background:#4a5a2a;color:white;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:.5px}
+.btn-next:hover{background:#3a4a1a}
+.btn-next:disabled{opacity:.5;cursor:not-allowed}
+
+.required-note{font-size:12px;color:#a09080;margin-bottom:20px}
+
+#successPage{display:none;max-width:480px;margin:0 auto;padding:60px 20px;text-align:center}
+.success-icon{font-size:56px;margin-bottom:16px}
+.success-title{font-size:22px;font-weight:700;color:#4a5a2a;margin-bottom:10px}
+.success-desc{font-size:15px;color:#7a6e5f;line-height:1.7}
+
+.error-msg{background:#fce8e8;border:1px solid #e0a0a0;border-radius:10px;padding:12px 14px;font-size:13px;color:#8a3030;margin-top:12px;display:none}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]{-moz-appearance:textfield}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════
+     ⚙️  設定區（只需改這裡）
+     ════════════════════════════════ -->
+<script>
+const ENDPOINT = 'https://hook.eu1.make.com/gut92aa2of9cy6qpvd6tr9cw0khcwkd2' // 跟初診/FU1/FU2共用同一個 webhook
+const FORM_TYPE = '3rd follow up' // ⚠️ 請務必確認跟 Airtable「填表階段」選項完全一致(含大小寫、空格)
+</script>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-logo">公主營養師</div>
+  <div class="header-title">第三次回診問卷</div>
+  <div class="header-sub">全面回顧你的變化</div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-wrap">
+  <div class="progress-steps">
+    <div class="step active" id="step1"><div class="step-dot">1</div>基本資料</div>
+    <div class="step" id="step2"><div class="step-dot">2</div>飲食體態</div>
+    <div class="step" id="step3"><div class="step-dot">3</div>消化代謝</div>
+    <div class="step" id="step4"><div class="step-dot">4</div>睡眠精神</div>
+    <div class="step" id="step5"><div class="step-dot">5</div>肌膚免疫</div>
+    <div class="step" id="step6"><div class="step-dot">6</div>女性健康</div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:16.6%"></div></div>
+</div>
+
+<!-- ═══ PAGE 1：基本識別 + 生理表徵 ═══ -->
+<div class="page active" id="page1">
+  <div class="section-title">👤 基本資料</div>
+  <p class="section-desc">請填寫你的識別資訊,方便我們對應到你的紀錄</p>
+  <p class="required-note">* 為必填欄位</p>
+
+  <div class="field-group">
+    <label class="field-label">你的名字 *</label>
+    <input class="field-input" type="text" id="f_name" placeholder="請輸入姓名">
+  </div>
+  <div class="field-group">
+    <label class="field-label">手機號碼 * <span>（作為識別碼，請與初診填寫的一致）</span></label>
+    <input class="field-input" type="tel" id="f_phone" placeholder="09xxxxxxxx">
+  </div>
+
+  <div class="section-title" style="margin-top:8px">🫀 生理表徵</div>
+  <div class="field-group">
+    <label class="field-label">你的空腹體重（kg） *</label>
+    <input class="field-input" type="number" id="f_weight" placeholder="請填入數字">
+  </div>
+  <div class="field-group">
+    <label class="field-label">平均每日睡眠時間（hr） *</label>
+    <input class="field-input" type="number" id="f_sleep_hours" placeholder="請填入數字" step="0.5">
+  </div>
+
+  <div class="nav-row">
+    <div></div>
+    <button class="btn-next" onclick="goTo(2)">下一步 →</button>
+  </div>
+  <div class="error-msg" id="err1">請填寫姓名、手機號碼、體重與睡眠時間</div>
+</div>
+
+<!-- ═══ PAGE 2：飲食與體態 ═══ -->
+<div class="page" id="page2">
+  <div class="section-title">🍙 飲食與體態</div>
+  <p class="section-desc">請以過去一個月的感受填寫</p>
+
+  <div id="symptoms_diet"></div>
+
+  <div class="nav-row">
+    <button class="btn-back" onclick="goTo(1)">← 上一步</button>
+    <button class="btn-next" onclick="goTo(3)">下一步 →</button>
+  </div>
+</div>
+
+<!-- ═══ PAGE 3：消化與代謝 ═══ -->
+<div class="page" id="page3">
+  <div class="section-title">🍃 消化與代謝</div>
+  <p class="section-desc">請以過去一個月的感受填寫</p>
+  <div id="symptoms_digestion"></div>
+
+  <div class="nav-row">
+    <button class="btn-back" onclick="goTo(2)">← 上一步</button>
+    <button class="btn-next" onclick="goTo(4)">下一步 →</button>
+  </div>
+</div>
+
+<!-- ═══ PAGE 4：睡眠與精神 ═══ -->
+<div class="page" id="page4">
+  <div class="section-title">😴 睡眠與精神</div>
+  <p class="section-desc">請以過去一個月的感受填寫</p>
+  <div id="symptoms_sleep"></div>
+
+  <div class="nav-row">
+    <button class="btn-back" onclick="goTo(3)">← 上一步</button>
+    <button class="btn-next" onclick="goTo(5)">下一步 →</button>
+  </div>
+</div>
+
+<!-- ═══ PAGE 5：肌膚與免疫 ═══ -->
+<div class="page" id="page5">
+  <div class="section-title">🌿 肌膚與免疫</div>
+  <p class="section-desc">請以過去一個月的感受填寫</p>
+  <div id="symptoms_immune"></div>
+
+  <div class="nav-row">
+    <button class="btn-back" onclick="goTo(4)">← 上一步</button>
+    <button class="btn-next" onclick="goTo(6)">下一步 →</button>
+  </div>
+</div>
+
+<!-- ═══ PAGE 6：女性限定 ═══ -->
+<div class="page" id="page6">
+  <div class="section-title">🌸 女性健康</div>
+  <p class="section-desc">請以過去一個月的感受填寫【生理女性限定，男性可略過送出】</p>
+<div id="symptoms_female"></div>
+
+  <div class="nav-row">
+    <button class="btn-back" onclick="goTo(5)">← 上一步</button>
+    <button class="btn-next" id="submitBtn" onclick="submitForm()">送出表單✔︎</button>
+  </div>
+  <div class="error-msg" id="errSubmit">送出失敗，請檢查網路後再試</div>
+</div>
+
+<!-- SUCCESS -->
+<div id="successPage">
+  <div class="success-icon">🌿</div>
+  <div class="success-title">感謝你的填寫！</div>
+  <p class="success-desc">我們已收到你的回診追蹤資料<br>營養師會在下次諮詢前仔細閱讀<br><br>如有任何問題請透過 LINE 聯繫我們</p>
+</div>
+
+<script>
+// ══ 症狀題目定義（五大象限,沿用FU1/FU2既有id以維持歷次比較） ══
+const SYMPTOMS = {
+  diet: [
+    {id:'飲｜體重過重', label:'體重過重'},
+    {id:'飲｜體重過輕', label:'體重過輕'},
+    {id:'飲｜暴食/吃過多**', label:'暴食／吃過多'},
+    {id:'飲｜渴望甜食*', label:'渴望甜食'},
+    {id:'飲｜渴望零食*', label:'渴望零食'},
+    {id:'飲｜依賴咖啡因**', label:'依賴咖啡因'},
+    {id:'飲｜微波食品/加工品**', label:'習慣攝取微波食品／加工品'},
+  ],
+  digestion: [
+    {id:'消｜脹氣**', label:'脹氣'},
+    {id:'消｜胃酸多/胃食道逆流', label:'胃酸多／胃食道逆流'},
+    {id:'消｜噁心/想吐', label:'噁心／想吐'},
+    {id:'消｜便秘**', label:'便秘'},
+    {id:'消｜拉肚子', label:'拉肚子'},
+    {id:'消｜排氣', label:'排氣'},
+    {id:'消｜水腫**', label:'水腫'},
+    {id:'消｜頻尿/憋尿困難', label:'頻尿／憋尿困難'},
+  ],
+  sleep: [
+    {id:'睡｜精神亢奮', label:'精神亢奮（都不會累）'},
+    {id:'睡｜疲勞/睡醒還是累**', label:'疲勞／睡醒還是累'},
+    {id:'睡｜需要午睡', label:'需要午睡'},
+    {id:'睡｜難入眠', label:'難入眠'},
+    {id:'睡｜半夜醒來(睡眠中斷)', label:'半夜醒來（睡眠中斷）'},
+    {id:'睡｜打呼/睡眠呼吸中止', label:'打呼／睡眠呼吸中止'},
+    {id:'睡｜心情低落*', label:'心情低落'},
+    {id:'睡｜覺得被工作消耗*', label:'覺得被工作消耗殆盡'},
+    {id:'睡｜不耐煩/愛生氣**', label:'不耐煩／愛生氣'},
+  ],
+  immune: [
+    {id:'肌｜痘痘/粉刺', label:'痘痘／粉刺'},
+    {id:'肌｜皮膚乾燥/紅疹', label:'皮膚乾燥／紅疹'},
+    {id:'肌｜落髮', label:'落髮'},
+    {id:'肌｜過敏', label:'過敏'},
+    {id:'肌｜鼻塞', label:'鼻塞'},
+    {id:'肌｜流鼻水', label:'流鼻水'},
+    {id:'肌｜喉嚨有痰', label:'喉嚨有痰'},
+    {id:'肌｜牙齦/喉嚨發炎', label:'牙齦／喉嚨發炎'},
+    {id:'肌｜嘴破/潰瘍', label:'嘴破／潰瘍'},
+  ],
+  female: [
+    {id:'女｜經期不穩定', label:'經期不穩定'},
+    {id:'女｜週期間隔>30天', label:'週期間隔 > 30 天'},
+    {id:'女｜經前症候群', label:'經前症候群'},
+    {id:'女｜經期情緒低落', label:'經期情緒低落'},
+    {id:'女｜經期不適', label:'經期不適'},
+    {id:'女｜經期服用止痛藥', label:'經期服用止痛藥'},
+    {id:'女｜經期血塊大、血液顏色深', label:'經期血塊大、血液顏色深'},
+  ],
+};
+
+// ⚠️ 0～4 量尺
+const SCALE_LABELS = ['幾乎\n無發生','偶爾發生\n症狀不嚴重','偶爾發生\n症狀嚴重','經常發生\n症狀不嚴重','經常發生\n症狀嚴重'];
+
+function buildSymptoms(group, containerId) {
+  const container = document.getElementById(containerId);
+  SYMPTOMS[group].forEach(s => {
+    const div = document.createElement('div');
+    div.className = 'symptom-item';
+    div.innerHTML = `<div class="symptom-name">${s.label}</div>
+      <div class="scale-opts">
+        ${[0,1,2,3,4].map(i=>{ const v=i; return `
+          <div class="scale-opt">
+            <input type="radio" name="${s.id}" id="${s.id}_${v}" value="${v}">
+            <label for="${s.id}_${v}">
+              <div class="dot">${v}</div>
+              <div class="lbl">${SCALE_LABELS[i].replace('\n','<br>')}</div>
+            </label>
+          </div>`; }).join('')}
+      </div>`;
+    container.appendChild(div);
+  });
+}
+buildSymptoms('diet','symptoms_diet');
+buildSymptoms('digestion','symptoms_digestion');
+buildSymptoms('sleep','symptoms_sleep');
+buildSymptoms('immune','symptoms_immune');
+buildSymptoms('female','symptoms_female');
+
+// ══ 頁面切換 ══
+let curPage = 1;
+const TOTAL_STEPS = 6;
+function goTo(n) {
+  if (n > curPage && curPage === 1) {
+    const name = document.getElementById('f_name').value.trim();
+    const phone = document.getElementById('f_phone').value.trim();
+    const weight = document.getElementById('f_weight').value.trim();
+    const sleepHours = document.getElementById('f_sleep_hours').value.trim();
+    if (!name || !phone || !weight || !sleepHours) {
+      document.getElementById('err1').style.display = 'block';
+      return;
+    }
+    document.getElementById('err1').style.display = 'none';
+  }
+  document.getElementById(`page${curPage}`).classList.remove('active');
+  document.getElementById(`page${n}`).classList.add('active');
+  curPage = n;
+  document.getElementById('progressFill').style.width = Math.round(n/TOTAL_STEPS*100) + '%';
+  for (let i=1; i<=TOTAL_STEPS; i++) {
+    const el = document.getElementById(`step${i}`);
+    el.className = 'step' + (i < n ? ' done' : i === n ? ' active' : '');
+    el.querySelector('.step-dot').textContent = i < n ? '✓' : i;
+  }
+  window.scrollTo(0,0);
+}
+
+function getSymptomValue(name) {
+  const checked = document.querySelector(`input[name="${name}"]:checked`);
+  return checked ? parseInt(checked.value) : null;
+}
+function getRadioValue(name) {
+  const el = document.querySelector(`input[name="${name}"]:checked`);
+  return el ? el.value : '';
+}
+
+// ══ 送出表單 ══
+async function submitForm() {
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = '送出中…';
+
+  const fields = {
+    '填表階段': FORM_TYPE,
+    '你的名字': document.getElementById('f_name').value.trim(),
+    '手機': document.getElementById('f_phone').value.trim(),
+    '體重': parseFloat(document.getElementById('f_weight').value) || null,
+    '平均每日睡眠時間（hr）': parseFloat(document.getElementById('f_sleep_hours').value) || null,
+  };
+
+  const symptomRows = [];
+  Object.values(SYMPTOMS).flat().forEach(s => {
+    const val = getSymptomValue(s.id);
+    if (val !== null) symptomRows.push({ '題目': s.id, '結果': val });
+  });
+  if (symptomRows.length > 0) fields['症狀紀錄'] = symptomRows;
+
+  Object.keys(fields).forEach(k => {
+    const v = fields[k];
+    if (v === null || v === '' || (Array.isArray(v) && v.length === 0)) delete fields[k];
+  });
+
+  try {
+    const res = await fetch(ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-make-apikey': 'princess-initial'
+      },
+      body: JSON.stringify(fields)
+    });
+
+    if (res.ok) {
+      document.getElementById('page6').style.display = 'none';
+      document.querySelector('.progress-wrap').style.display = 'none';
+      document.getElementById('successPage').style.display = 'block';
+      window.scrollTo(0,0);
+    } else {
+      throw new Error('送出失敗');
+    }
+  } catch (e) {
+    document.getElementById('errSubmit').style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = '送出表單 ✓';
+  }
+}
+</script>
+</body>
+</html>
